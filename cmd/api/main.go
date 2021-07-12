@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"time"
 )
 
 const version = "1.0.0"
@@ -14,6 +16,17 @@ type config struct {
 	env  string
 }
 
+type AppStatus struct {
+	Status  string `json:"status"`
+	Env     string `json:"env"`
+	Version string `json:"version"`
+}
+
+type application struct {
+	config config
+	logger *log.Logger
+}
+
 func main() {
 	var cfg config
 
@@ -21,13 +34,25 @@ func main() {
 	flag.StringVar(&cfg.env, "env", "dev", "App env (dev or prod)")
 	flag.Parse()
 
-	fmt.Println("Starting...")
+	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	http.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "STATUS")
-	})
+	app := &application{
+		config: cfg,
+		logger: logger,
+	}
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", cfg.port), nil)
+	srv := &http.Server{
+		Addr:         fmt.Sprintf(":%d", cfg.port),
+		Handler:      app.routes(),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
+
+	app.logger.Println("Starting @", cfg.port)
+
+	err := srv.ListenAndServe()
+
 	if err != nil {
 		log.Println(err)
 	}
