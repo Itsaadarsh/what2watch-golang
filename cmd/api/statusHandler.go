@@ -11,7 +11,6 @@ func (app *application) statusHandler(w http.ResponseWriter, r *http.Request) {
 		Env:     app.config.env,
 		Version: version,
 	}
-
 	js, err := json.MarshalIndent(currentStatus, "", "\t")
 	if err != nil {
 		app.logger.Println(err)

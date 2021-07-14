@@ -17,6 +17,8 @@ func (app *application) getOneMovie(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		app.logger.Print(errors.New("invalid ID parameter"))
+		app.errorJSON(w, err)
+		return
 	}
 
 	movie := models.Movie{
@@ -30,6 +32,11 @@ func (app *application) getOneMovie(w http.ResponseWriter, r *http.Request) {
 		MPAARating:  "PG-16",
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
+	}
+
+	err = app.writeJSON(w, http.StatusOK, movie, "movie")
+	if err != nil {
+		app.logger.Print(err)
 	}
 }
 func (app *application) getAllMovie(w http.ResponseWriter, r *http.Request) {}
