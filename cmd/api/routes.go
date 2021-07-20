@@ -20,6 +20,7 @@ func (app *application) routes() http.Handler {
 	secure := alice.New(app.checkToken)
 
 	router.HandlerFunc(http.MethodGet, "/status", app.statusHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/graphql/list", app.moviesGraphql)
 
 	router.HandlerFunc(http.MethodPost, "/v1/signin", app.signIn)
 
